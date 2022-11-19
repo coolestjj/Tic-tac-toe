@@ -1,5 +1,7 @@
 package application.controller;
 
+import application.Client;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.Pane;
@@ -8,6 +10,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -26,14 +30,63 @@ public class Controller implements Initializable {
 
     private static boolean TURN = false;
 
+//    private Socket socket = new Socket("localhost", 1234);
+//    private Client client = new Client(socket);
+
     private static final int[][] chessBoard = new int[3][3];
     private static final boolean[][] flag = new boolean[3][3];
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        Client client = null;
+        try {
+            Socket socket = new Socket("localhost", 1234);
+            client = new Client(socket);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+        Client finalClient = client;
+        Thread thread = new Thread(finalClient);
+        thread.start();
+
+
+        //监听线程,接收对方的步子
+        new Thread() {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    String enemyMove = finalClient.getEnemyMove();
+                    if (enemyMove != null) {
+                        int enemyX = Integer.parseInt(String.valueOf(enemyMove.charAt(0)));
+                        int enemyY = Integer.parseInt(String.valueOf(enemyMove.charAt(2)));
+                        System.out.println(enemyMove);
+                        Platform.runLater(() -> {
+                            if (refreshBoard(enemyX, enemyY)) {
+                                TURN = !TURN;
+                            }
+                        });
+                    }
+                }
+            }
+        }.start();
+
         game_panel.setOnMouseClicked(event -> {
+
             int x = (int) (event.getX() / BOUND);
             int y = (int) (event.getY() / BOUND);
+
+            try {
+                finalClient.sendMove(x, y);
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+
             if (refreshBoard(x, y)) {
                 TURN = !TURN;
             }
