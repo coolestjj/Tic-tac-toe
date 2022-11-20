@@ -23,6 +23,7 @@ public class Client implements Runnable{
         try {
             out = new PrintWriter(socket.getOutputStream());
         } catch (Exception e) {
+            // toDo: 打开四个窗口，关闭前两个后，这边下棋就会到这里出错
             System.err.println("Server down!");
         }
         String myMove = x + "," + y + "," + side;

@@ -16,8 +16,6 @@ public class Server {
 
         while (true) {
 
-
-
             List<Socket> players = new ArrayList<>();
             ChessGame chessGame = new ChessGame();
             while (players.size() < 2) {
@@ -57,6 +55,7 @@ public class Server {
                             String msg = in.nextLine();
                             sleep(300);
                             if (msg.equals("Close")) {
+                                System.out.println("One player left");
                                 chessService1.verify();
                                 chessService2.verify();
                             }

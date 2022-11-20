@@ -39,6 +39,7 @@ public class ChessService implements Runnable{
             PrintWriter toMyClient = new PrintWriter(mySocket.getOutputStream());
             toMyClient.println("Another player has left");
             toMyClient.flush();
+            toMyClient.close();
         } catch (Exception ignored) {
 
         }
