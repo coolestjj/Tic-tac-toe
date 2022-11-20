@@ -22,6 +22,8 @@ public class Controller implements Initializable {
     private static final int BOUND = 90;
     private static final int OFFSET = 15;
 
+    private static int MYSIDE;
+
     @FXML
     private Pane base_square;
 
@@ -29,9 +31,6 @@ public class Controller implements Initializable {
     private Rectangle game_panel;
 
     private static boolean TURN = false;
-
-//    private Socket socket = new Socket("localhost", 1234);
-//    private Client client = new Client(socket);
 
     private static final int[][] chessBoard = new int[3][3];
     private static final boolean[][] flag = new boolean[3][3];
@@ -48,13 +47,29 @@ public class Controller implements Initializable {
         Client finalClient = client;
         Thread thread = new Thread(finalClient);
         thread.start();
-
-
         //监听线程,接收对方的步子
         new Thread() {
             @Override
             public void run() {
-                while(true) {
+
+                boolean flag1 = true;
+                boolean flag2 = true;
+
+                while (true) {
+                    if (determineWinner() != 0) {
+
+                        if (determineWinner() == MYSIDE) {
+                            System.out.println("You win!");
+                        }
+                        else if (determineWinner() == 3 - MYSIDE) {
+                            System.out.println("You lose!");
+                        }
+                        else if (determineWinner() == 3) {
+                            System.out.println("Tie!");
+                        }
+                        break;
+                    }
+
                     try {
                         sleep(200);
                     } catch (InterruptedException e) {
@@ -62,15 +77,35 @@ public class Controller implements Initializable {
                     }
 
                     String enemyMove = finalClient.getEnemyMove();
+
                     if (enemyMove != null) {
-                        int enemyX = Integer.parseInt(String.valueOf(enemyMove.charAt(0)));
-                        int enemyY = Integer.parseInt(String.valueOf(enemyMove.charAt(2)));
-                        System.out.println(enemyMove);
-                        Platform.runLater(() -> {
-                            if (refreshBoard(enemyX, enemyY)) {
-                                TURN = !TURN;
+
+                        if (enemyMove.equals("Only 1 player now, waiting...") && flag1) {
+                            System.out.println(enemyMove);
+                            flag1 = false;
+                        }
+                        else if (enemyMove.contains("2 players now") && flag2) {
+                            MYSIDE = Integer.parseInt(String.valueOf(enemyMove.charAt(0)));
+                            System.out.println("2 players now, you are player" + MYSIDE);
+
+                            if (MYSIDE == 1) {
+                                TURN = true;
                             }
-                        });
+                            else if (MYSIDE == 2) {
+                                TURN = false;
+                            }
+
+                            flag2 = false;
+                        }
+                        else if (enemyMove.length() == 3){
+                            int enemyX = Integer.parseInt(String.valueOf(enemyMove.charAt(0)));
+                            int enemyY = Integer.parseInt(String.valueOf(enemyMove.charAt(2)));
+                            Platform.runLater(() -> {
+                                  if (enemyRefreshBoard(enemyX, enemyY)) {
+                                      TURN = !TURN;
+                                  }
+                            });
+                        }
                     }
                 }
             }
@@ -81,28 +116,83 @@ public class Controller implements Initializable {
             int x = (int) (event.getX() / BOUND);
             int y = (int) (event.getY() / BOUND);
 
-            try {
-                finalClient.sendMove(x, y);
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-
-            if (refreshBoard(x, y)) {
+            if (meRefreshBoard(x, y)) {
                 TURN = !TURN;
+                try {
+                    finalClient.sendMove(x, y);
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                }
+
             }
         });
     }
 
-    private boolean refreshBoard (int x, int y) {
+    private boolean allEqual(int x, int y, int z) {
+        return x == z && y == z;
+    }
+
+    private int determineWinner() {
+
+        for (int i = 0; i < 3; i++) {
+            // Check straight lines
+            if (allEqual(chessBoard[i][0], chessBoard[i][1], chessBoard[i][2])) {
+                return chessBoard[i][0];
+            }
+            if (allEqual(chessBoard[0][i], chessBoard[1][i], chessBoard[2][i])) {
+                return chessBoard[0][i];
+            }
+
+        }
+        // Check diagnoses
+        if (allEqual(chessBoard[0][0], chessBoard[1][1], chessBoard[2][2])
+                || allEqual(chessBoard[2][0], chessBoard[1][1], chessBoard[0][2])) {
+            return chessBoard[1][1];
+        }
+
+        boolean notFinished = false;
+        for (int i = 0 ; i < 3 ; i++) {
+            for (int j = 0 ; j < 3 ; j++) {
+                if (chessBoard[i][j] == 0) {
+                    notFinished = true;
+                }
+            }
+        }
+        // 3 is tie
+        if (!notFinished) {
+            return 3;
+        }
+
+        return 0;
+    }
+
+    private boolean enemyRefreshBoard(int x, int y) {
         if (chessBoard[x][y] == EMPTY) {
-            chessBoard[x][y] = TURN ? PLAY_1 : PLAY_2;
-            drawChess();
-            return true;
+            if (!TURN) {
+                chessBoard[x][y] = 3 - MYSIDE;
+                drawChess();
+                System.out.println("Enemy move at " + x + "," + y);
+                return true;
+            }
         }
         return false;
     }
 
-    private void drawChess () {
+    private boolean meRefreshBoard(int x, int y) {
+        if (chessBoard[x][y] == EMPTY) {
+            if (TURN) {
+                chessBoard[x][y] = MYSIDE;
+                drawChess();
+                System.out.println("Your move at " + x + "," + y);
+                return true;
+            }
+//            chessBoard[x][y] = TURN ? PLAY_1 : PLAY_2;
+
+        }
+        return false;
+    }
+
+    private void drawChess() {
         for (int i = 0; i < chessBoard.length; i++) {
             for (int j = 0; j < chessBoard[0].length; j++) {
                 if (flag[i][j]) {
@@ -126,7 +216,7 @@ public class Controller implements Initializable {
         }
     }
 
-    private void drawCircle (int i, int j) {
+    private void drawCircle(int i, int j) {
         Circle circle = new Circle();
         base_square.getChildren().add(circle);
         circle.setCenterX(i * BOUND + BOUND / 2.0 + OFFSET);
@@ -137,7 +227,7 @@ public class Controller implements Initializable {
         flag[i][j] = true;
     }
 
-    private void drawLine (int i, int j) {
+    private void drawLine(int i, int j) {
         Line line_a = new Line();
         Line line_b = new Line();
         base_square.getChildren().add(line_a);

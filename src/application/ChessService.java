@@ -20,10 +20,10 @@ public class ChessService implements Runnable{
     public void refreshBoard(String coordinates) {
         int x = Integer.parseInt(String.valueOf(coordinates.charAt(0)));
         int y = Integer.parseInt(String.valueOf(coordinates.charAt(2)));
-        int identiey = Integer.parseInt(String.valueOf(coordinates.charAt(4)));
-        if (chessBoard[x][y] == 0) {
-            chessBoard[x][y] = identiey;
-        }
+//        int identiey = Integer.parseInt(String.valueOf(coordinates.charAt(4)));
+//        if (chessBoard[x][y] == 0) {
+//            chessBoard[x][y] = identiey;
+//        }
     }
 
     public void doService() throws IOException {

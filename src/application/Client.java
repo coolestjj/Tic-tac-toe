@@ -22,7 +22,7 @@ public class Client implements Runnable{
 
     public void sendMove(int x, int y) throws IOException {
         out = new PrintWriter(socket.getOutputStream());
-        myMove = x + "," + y + "," + "1";
+        myMove = x + "," + y;
         out.println(myMove);
         out.flush();
     }
