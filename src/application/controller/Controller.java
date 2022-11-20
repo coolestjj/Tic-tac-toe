@@ -9,6 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -187,8 +188,6 @@ public class Controller implements Initializable {
                 System.out.println("You move at " + x + "," + y);
                 return true;
             }
-//            chessBoard[x][y] = TURN ? PLAY_1 : PLAY_2;
-
         }
         return false;
     }

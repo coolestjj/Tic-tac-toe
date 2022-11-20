@@ -9,39 +9,20 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Server {
+
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(1234);
-//        ServerSocket heartBeatSocket = new ServerSocket(1235);
-
+        ServerSocket heartBeatSocket = new ServerSocket(1235);
 
         while (true) {
+
+
+
             List<Socket> players = new ArrayList<>();
             ChessGame chessGame = new ChessGame();
             while (players.size() < 2) {
+
                 Socket socket = serverSocket.accept();
-//
-//                Socket clientHeartBeat = heartBeatSocket.accept();
-//                new Thread() {
-//                    @Override
-//                    public void run() {
-//
-//                        Scanner heartBeatReceiver = null;
-//                        try {
-//                             heartBeatReceiver = new Scanner(clientHeartBeat.getInputStream());
-//                        } catch (IOException exception) {
-//                            exception.printStackTrace();
-//                        }
-//
-//                        while (true) {
-//                            assert heartBeatReceiver != null;
-//                            if (!heartBeatReceiver.hasNext()) {
-//
-//                            }
-//                        }
-//                    }
-//                }.start();
-
-
                 players.add(socket);
                 if (players.size() < 2) {
                     PrintWriter out = new PrintWriter(socket.getOutputStream());
@@ -64,6 +45,29 @@ public class Server {
             Thread thread2 = new Thread(chessService2);
             thread1.start();
             thread2.start();
+
+            new Thread() {
+                @Override
+                public void run() {
+                    while(true) {
+                        try {
+                            Socket closeSocket = heartBeatSocket.accept();
+                            Scanner in = new Scanner(closeSocket.getInputStream());
+                            if (!in.hasNext()) return;
+                            String msg = in.nextLine();
+                            sleep(300);
+                            if (msg.equals("Close")) {
+                                chessService1.verify();
+                                chessService2.verify();
+                            }
+                            in.close();
+
+                        } catch (IOException | InterruptedException exception) {
+                            exception.printStackTrace();
+                        }
+                    }
+                }
+            }.start();
         }
     }
 }

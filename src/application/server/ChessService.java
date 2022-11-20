@@ -2,7 +2,6 @@ package application.server;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -35,53 +34,19 @@ public class ChessService implements Runnable{
         }
     }
 
+    public void verify() {
+        try {
+            PrintWriter toMyClient = new PrintWriter(mySocket.getOutputStream());
+            toMyClient.println("Another player has left");
+            toMyClient.flush();
+        } catch (Exception ignored) {
+
+        }
+    }
+
 
     @Override
     public void run() {
-
-
-//        new Thread() {
-//            @Override
-//            public void run() {
-//                ServerSocket serverSocket;
-//                Socket heartBeatSocket = null;
-//                try {
-//                    serverSocket = new ServerSocket(1235);
-//                    heartBeatSocket = serverSocket.accept();
-//                    System.out.println("Heart beat socket!");
-//                } catch (IOException exception) {
-//                    exception.printStackTrace();
-//                }
-//
-//                Scanner in = null;
-//                PrintWriter out = null;
-//                try {
-//                    try {
-//                        in = new Scanner(heartBeatSocket.getInputStream());
-//                        out = new PrintWriter(heartBeatSocket.getOutputStream());
-//                    } finally {
-//
-//                    }
-//                } catch (IOException ioException) {
-//                    ioException.printStackTrace();
-//                }
-//
-//                out.println("heartBeat");
-//                out.flush();
-//                while(true) {
-//                    if (!in.hasNext()) {
-//                        return;
-//                    }
-//                    String heartBeat = in.next();
-//                    System.out.println("receive " + heartBeat);
-//                    out.println(heartBeat);
-//                    out.flush();
-//                }
-//
-//            }
-//
-//        }.start();
-
 
         try {
             try {
@@ -96,8 +61,4 @@ public class ChessService implements Runnable{
             exception.printStackTrace();
         }
     }
-
-//    public boolean determineWinner(int[][] chessBoard) {
-//
-//    }
 }
