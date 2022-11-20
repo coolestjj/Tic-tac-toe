@@ -9,9 +9,7 @@ public class Client implements Runnable{
 
     private static String enemyMove = null;
 
-    private static String myMove = null;
-
-    private Socket socket;
+    private final Socket socket;
 
     private Scanner in;
     private PrintWriter out;
@@ -20,9 +18,9 @@ public class Client implements Runnable{
         this.socket = socket;
     }
 
-    public void sendMove(int x, int y) throws IOException {
+    public void sendMove(int x, int y, int side) throws IOException {
         out = new PrintWriter(socket.getOutputStream());
-        myMove = x + "," + y;
+        String myMove = x + "," + y + "," + side;
         out.println(myMove);
         out.flush();
     }

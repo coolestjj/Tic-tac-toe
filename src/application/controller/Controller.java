@@ -97,7 +97,7 @@ public class Controller implements Initializable {
 
                             flag2 = false;
                         }
-                        else if (enemyMove.length() == 3){
+                        else if (enemyMove.length() == 5){
                             int enemyX = Integer.parseInt(String.valueOf(enemyMove.charAt(0)));
                             int enemyY = Integer.parseInt(String.valueOf(enemyMove.charAt(2)));
                             Platform.runLater(() -> {
@@ -119,7 +119,7 @@ public class Controller implements Initializable {
             if (meRefreshBoard(x, y)) {
                 TURN = !TURN;
                 try {
-                    finalClient.sendMove(x, y);
+                    finalClient.sendMove(x, y, MYSIDE);
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }

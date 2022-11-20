@@ -16,6 +16,7 @@ public class Server {
 
         while (true) {
             List<Socket> players = new ArrayList<>();
+            ChessGame chessGame = new ChessGame();
             while (players.size() < 2) {
                 Socket socket = serverSocket.accept();
                 players.add(socket);
@@ -34,8 +35,8 @@ public class Server {
                 }
                 System.out.println("player" + players.size() + " connected");
             }
-            ChessService chessService1 = new ChessService(players.get(0), players.get(1));
-            ChessService chessService2 = new ChessService(players.get(1), players.get(0));
+            ChessService chessService1 = new ChessService(players.get(0), players.get(1), chessGame);
+            ChessService chessService2 = new ChessService(players.get(1), players.get(0), chessGame);
             Thread thread1 = new Thread(chessService1);
             Thread thread2 = new Thread(chessService2);
             thread1.start();
