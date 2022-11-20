@@ -1,7 +1,4 @@
-package application;
-
-import application.controller.Controller;
-import javafx.application.Platform;
+package application.server;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,16 +6,42 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Server {
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(1234);
+//        ServerSocket heartBeatSocket = new ServerSocket(1235);
+
 
         while (true) {
             List<Socket> players = new ArrayList<>();
             ChessGame chessGame = new ChessGame();
             while (players.size() < 2) {
                 Socket socket = serverSocket.accept();
+//
+//                Socket clientHeartBeat = heartBeatSocket.accept();
+//                new Thread() {
+//                    @Override
+//                    public void run() {
+//
+//                        Scanner heartBeatReceiver = null;
+//                        try {
+//                             heartBeatReceiver = new Scanner(clientHeartBeat.getInputStream());
+//                        } catch (IOException exception) {
+//                            exception.printStackTrace();
+//                        }
+//
+//                        while (true) {
+//                            assert heartBeatReceiver != null;
+//                            if (!heartBeatReceiver.hasNext()) {
+//
+//                            }
+//                        }
+//                    }
+//                }.start();
+
+
                 players.add(socket);
                 if (players.size() < 2) {
                     PrintWriter out = new PrintWriter(socket.getOutputStream());

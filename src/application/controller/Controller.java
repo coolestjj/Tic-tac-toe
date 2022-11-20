@@ -1,6 +1,6 @@
 package application.controller;
 
-import application.Client;
+import application.client.Client;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -47,6 +47,7 @@ public class Controller implements Initializable {
         Client finalClient = client;
         Thread thread = new Thread(finalClient);
         thread.start();
+
         //监听线程,接收对方的步子
         new Thread() {
             @Override
@@ -171,7 +172,7 @@ public class Controller implements Initializable {
             if (!TURN) {
                 chessBoard[x][y] = 3 - MYSIDE;
                 drawChess();
-                System.out.println("Enemy move at " + x + "," + y);
+                System.out.println("Opponent moves at " + x + "," + y);
                 return true;
             }
         }
@@ -183,7 +184,7 @@ public class Controller implements Initializable {
             if (TURN) {
                 chessBoard[x][y] = MYSIDE;
                 drawChess();
-                System.out.println("Your move at " + x + "," + y);
+                System.out.println("You move at " + x + "," + y);
                 return true;
             }
 //            chessBoard[x][y] = TURN ? PLAY_1 : PLAY_2;

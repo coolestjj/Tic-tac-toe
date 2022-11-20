@@ -1,6 +1,4 @@
-package application;
-
-import java.util.Arrays;
+package application.server;
 
 public class ChessGame {
 
