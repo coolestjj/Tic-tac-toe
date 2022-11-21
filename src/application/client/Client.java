@@ -5,60 +5,60 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Client implements Runnable{
+public class Client implements Runnable {
 
-    private static String enemyMove = null;
+  private static String enemyMove = null;
 
-    private final Socket socket;
+  private final Socket socket;
 
-    private Scanner in;
-    private PrintWriter out;
+  private Scanner in;
+  private PrintWriter out;
 
-    public Client (Socket socket) {
-        this.socket = socket;
+  public Client(Socket socket) {
+    this.socket = socket;
+  }
+
+  public void sendMove(int x, int y, int side) throws IOException {
+
+    try {
+      out = new PrintWriter(socket.getOutputStream());
+    } catch (Exception ignored) {
     }
+    String myMove = x + "," + y + "," + side;
+    out.println(myMove);
+    out.flush();
+  }
 
-    public void sendMove(int x, int y, int side) throws IOException {
+  public String getEnemyMove() {
+    return enemyMove;
+  }
 
-        try {
-            out = new PrintWriter(socket.getOutputStream());
-        } catch (Exception e) {
-            // toDo: 打开四个窗口，关闭前两个后，这边下棋就会到这里出错
-            System.err.println("Server down!");
+  public void doService() {
+    while (true) {
+        if (!in.hasNext()) {
+            return;
         }
-        String myMove = x + "," + y + "," + side;
-        out.println(myMove);
-        out.flush();
+      enemyMove = in.nextLine();
+      if (enemyMove.equals("Another player has left")) {
+        System.out.println(enemyMove);
+        break;
+      }
     }
+  }
 
-    public String getEnemyMove() {
-        return enemyMove;
+  @Override
+  public void run() {
+
+    try {
+      try {
+        in = new Scanner(socket.getInputStream());
+        out = new PrintWriter(socket.getOutputStream());
+        doService();
+      } finally {
+        socket.close();
+      }
+    } catch (IOException exception) {
+      exception.printStackTrace();
     }
-
-    public void doService() {
-        while (true) {
-            if (!in.hasNext()) return;
-            enemyMove = in.nextLine();
-            if(enemyMove.equals("Another player has left")) {
-                System.out.println(enemyMove);
-                break;
-            }
-        }
-    }
-
-    @Override
-    public void run() {
-
-        try {
-            try {
-                in = new Scanner(socket.getInputStream());
-                out = new PrintWriter(socket.getOutputStream());
-                doService();
-            } finally {
-                socket.close();
-            }
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-    }
+  }
 }
